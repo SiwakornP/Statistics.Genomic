@@ -1,0 +1,94 @@
+---
+title: "Week1"
+author: "Siwakorn"
+date: "9/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gplots)
+library(devtools)
+library(Biobase)
+library(RSkittleBrewer)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+library(tidyverse)
+library(rlang)
+library(tidyverse)
+```
+
+```{r}
+trop = RSkittleBrewer("tropical")
+palette(trop)
+par(pch=19)
+```
+
+```{r}
+con = url("http://bowtie-bio.sourceforge.net/recount/ExpressionSets/bodymap_eset.RData")
+load(file=con)
+close(con)
+bm = bodymap.eset
+str(bm)
+class(bm)
+pdata=pData(bm)
+edata=Biobase::exprs(bm)
+fdata = fData(bm)
+edata %>% dim()
+summary(edata)
+dim(pdata)
+dim(edata)
+```
+
+```{r}
+boxplot(log2(edata+1),col=2,range=0)
+
+par(mfrow=c(1,2))
+hist(log2(edata[,1]+1),col=2)
+hist(log2(edata[,2]+1),col=2)
+
+
+plot(density(log2(edata[,1]+1)),col=2) + lines(density(log2(edata[,2]+1)),col=3)
+
+qqplot(log2(edata[,1]+1), log2(edata[,2]+1),col=3)
+
+mm = log2(edata[,1]+1) - log2(edata[,2]+1)
+aa = log2(edata[,1]+1) + log2(edata[,2]+1)
+plot(aa,mm,col=2)
+```
+
+```{r}
+edata = as.data.frame(edata)
+filt_edata = filter(edata,rowMeans(edata) > 1)
+boxplot(as.matrix(log2(filt_edata+1)),col=2)
+
+hist(log(edata[,1]+1))
+hist(log(edata[,1]+1))
+hist(log(edata[,1]+1),col=2, breaks = 100)
+low_genes = rowMeans(edata) <5
+rowMeans(edata) 
+edata[1:10,1:10]
+filter_data = filter(as.data.frame(edata), !low_genes)
+filter_data
+```
+
+```{r}
+Nedata = log2(edata +1)
+dist1 = dist(t(Nedata))
+dist1
+
+colramp = colorRampPalette(c(3,"white",2))(9)
+colramp
+heatmap(as.matrix(dist1), col = colramp, Colv = NA, Rowv = NA)
+```
+
+
+```{r}
+hclust1 = hclust(dist1)
+plot(hclust1)
+plot(hclust1,hang=-1)
+```
+
